@@ -1,11 +1,11 @@
-Feature : Login functionality 
+Feature: Login functionality
 
-Scenario : Successful Login with valid credential
-Given I am on login page
-When I login with username and password or phone number
-Then I should be logged in Successfully and see my username or phone number in profile
+  Scenario: Successful login with valid credentials
+    Given I navigate to the login page
+    When I login with username "standard_user" and password "secret_sauce"
+    Then I should see the products page
 
-Scenario : Unsuccessful login with invalid credentials
-Given I am on login page
-When I login with incorrect username and password or phone number
-Then I should see and error message
+  Scenario: Unsuccessful login with invalid credentials
+    Given I navigate to the login page
+    When I login with username "invalid_user" and password "wrong_pass"
+    Then I should see an error message
