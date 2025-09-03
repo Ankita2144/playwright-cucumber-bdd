@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Reports
+reports/
+coverage/
+*.json
+*.html
+
+# Environment files
+.env
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
