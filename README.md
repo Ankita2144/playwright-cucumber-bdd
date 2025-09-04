@@ -2,7 +2,7 @@
 
 ## Project Overview
 This repository contains automated UI test cases for [SauceDemo](https://www.saucedemo.com), built with **Playwright** and **Cucumber (BDD)** in JavaScript.  
-It uses a **Page Object Model (POM)** for maintainability and supports screenshots & reports for failed steps.  
+It uses a **Page Object Model (POM)** for maintainability and supports **screenshots & reports** (Playwright + Allure) for failed steps.  
 
 ---
 
@@ -10,6 +10,7 @@ It uses a **Page Object Model (POM)** for maintainability and supports screensho
 - Playwright (JavaScript) → Browser automation  
 - Cucumber (BDD) → Business-readable test scenarios  
 - Page Object Model (POM) → Clean test structure  
+- Allure Reports → Rich HTML reporting with screenshots & labels  
 - GitHub Actions → CI/CD integration (optional)  
 
 ---
@@ -19,21 +20,30 @@ It uses a **Page Object Model (POM)** for maintainability and supports screensho
 src/
 ├── features/ # Gherkin feature files (BDD scenarios)
 │ └── login.feature
+│ └── cartAndCheckout.feature
 │
 ├── pages/ # Page Object classes
 │ └── loginPage.js
+│ └── cartAndcheckoutPage.js
 │
 ├── steps/ # Step definitions (Given/When/Then)
 │ └── login.steps.js
+│ └── cartAndcheckoutPage.steps.js
 │
-└── support/ # Cucumber hooks & world
-├── env.js
-├── hook.js
-└── world.js
+├── support/ # Cucumber hooks & world
+│ └── env.js
+│ └── hooks.js
+│ └── world.js
+|
+├── utils/ # Utilities
+│ └── base.util.js
+│ └── screenshot.util.js
 
-reports/ # Custom screenshots & reports
+
+reports/ # Screenshots & reports
 playwright-report/ # Playwright native reports
-tests/ # Native Playwright test examples
+allure-results/ # Raw results for Allure
+allure-report/ # Generated Allure HTML report
 
 ---
 
@@ -45,9 +55,9 @@ tests/ # Native Playwright test examples
 
 ### Cart & Checkout 
 - Add item(s) to cart  
-- Remove item from cart  
-- Checkout and verify total price  
-- Complete order and validate success message  
+- Proceed to checkout with customer details  
+- Verify order confirmation  
+- Finish checkout and validate success message    
 
 ---
 
@@ -67,7 +77,18 @@ tests/ # Native Playwright test examples
 
 Reports & Screenshots
 * Playwright report → playwright-report/index.html
-* Custom screenshots → reports/screenshots/
+* Screenshots → stored automatically for failed steps under reports/screenshots/
+* Allure Report:
+   -- Generate:  
+      npx allure generate allure-results --clean -o allure-report
+   -- Open (manual):
+      npx allure open allure-report
+   -- Or serve directly:
+      npx allure serve allure-results
+
+On Windows, if allure open fails to launch the browser automatically, just copy the URL printed in the console and open it manually, or run:
+start "" ".\allure-report\index.html"
+
 
 CI/CD
 --> Example GitHub Actions workflow is inside .github/workflows/ to run tests on every push.
@@ -75,5 +96,5 @@ CI/CD
 ## Portfolio Value
 Demonstrates Playwright + Cucumber (BDD) integration
 Uses POM design for maintainable tests
-Includes reports, screenshots, CI/CD hooks for real-world QA workflows
-Can be extended to cover API + Performance testing
+Includes Playwright & Allure reports, screenshots, CI/CD hooks
+Real-world QA workflow example, easily extendable to API & Performance testing
