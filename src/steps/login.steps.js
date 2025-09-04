@@ -2,16 +2,19 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const config = require('../support/env');
 
+function safeName(s = '') {
+  return String(s).replace(/[^a-z0-9_\-]/gi, '_');
+}
+
 Given('I navigate to the login page', async function () {
   await this.BaseUtil.navigate(config.BASE_URL);
 
   if (this.ScreenshotUtil) {
-    await this.ScreenshotUtil.takeScreenshot('LoginPage');
+    await this.ScreenshotUtil.takeScreenshot('LoginPage_Blank');
   }
 
   const logo = await this.LoginPage.getLoginLogoText();
   console.log('Logo text:', logo);
-
   const pageTitle = await this.BaseUtil.getPageTitle();
   console.log('Page title:', pageTitle);
 
@@ -38,9 +41,6 @@ When('I login as {string}', async function (userType) {
   await this.LoginPage.fillCredentials(username, config.PASSWORD);
   await this.LoginPage.clickLogin();
   console.log(`Logged in as ${username} and Password: ${config.PASSWORD}`);
-  if (this.ScreenshotUtil) {
-    await this.ScreenshotUtil.takeScreenshot('ErrorMessage');
-  }
 });
 
 Then('I should see the products page', async function () {
@@ -57,13 +57,24 @@ Then('I should see the products page', async function () {
   }
 
   if (this.ScreenshotUtil) {
-    await this.ScreenshotUtil.takeScreenshot('ProductsPage');
+    const uname = safeName(this.lastLoginAttempt?.username || 'unknown');
+    await this.ScreenshotUtil.takeScreenshot(`ProductsPage_${uname}`);
   }
 });
 
 Then('I should see an error message', async function () {
   const text = await this.LoginPage.getErrorMessage(); 
   console.log('Error message:', text);
-
   expect(text && text.length).toBeTruthy();
+
+  let kind = 'error';
+  const lower = (text || '').toLowerCase();
+  if (lower.includes('locked out')) kind = 'locked_out';
+  else if (lower.includes('do not match')) kind = 'invalid_creds';
+
+  if (this.ScreenshotUtil) {
+    const uname = safeName(this.lastLoginAttempt?.username || 'unknown');
+    await this.ScreenshotUtil.takeScreenshot(`LoginError_${uname}_${kind}`);
+  }
 });
+
