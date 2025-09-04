@@ -14,5 +14,5 @@ const ENV = {
   }
 };
 
-const currentEnv = process.env.TEST_ENV || "dev";
+const currentEnv = process.env.TEST_ENV || process.env.NODE_ENV || "dev";
 module.exports = ENV[currentEnv];

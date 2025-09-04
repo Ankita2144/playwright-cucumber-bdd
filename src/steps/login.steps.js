@@ -2,16 +2,10 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('@playwright/test');
 const config = require('../support/env');
 
-function safeName(s = '') {
-  return String(s).replace(/[^a-z0-9_\-]/gi, '_');
-}
 
 Given('I navigate to the login page', async function () {
   await this.BaseUtil.navigate(config.BASE_URL);
-
-  if (this.ScreenshotUtil) {
-    await this.ScreenshotUtil.takeScreenshot('LoginPage_Blank');
-  }
+  await this.snap('LoginPage_Blank');
 
   const logo = await this.LoginPage.getLoginLogoText();
   console.log('Logo text:', logo);
@@ -29,18 +23,25 @@ Given('I navigate to the login page', async function () {
 });
 
 When('I login with username {string} and password {string}', async function (username, password) {
+  this.lastLoginAttempt = { username };      // used by snap() for filenames
   await this.LoginPage.fillCredentials(username, password);
 });
 
 When('I click the login button', async function () {
   await this.LoginPage.clickLogin();
+  await this.snap('Login_Submitted');
 });
 
 When('I login as {string}', async function (userType) {
   const username = config.USERS?.[userType] || userType;
-  await this.LoginPage.fillCredentials(username, config.PASSWORD);
+  const password = config.PASSWORD || 'secret_sauce';
+
+  this.lastLoginAttempt = { username }; // used by snap() for filenames
+  await this.LoginPage.fillCredentials(username, password);
   await this.LoginPage.clickLogin();
-  console.log(`Logged in as ${username} and Password: ${config.PASSWORD}`);
+  console.log(`Logged in as ${username} and Password: ${password}`);
+
+  await this.snap('Login_Submitted');
 });
 
 Then('I should see the products page', async function () {
@@ -56,14 +57,11 @@ Then('I should see the products page', async function () {
     throw new Error('Not on products page');
   }
 
-  if (this.ScreenshotUtil) {
-    const uname = safeName(this.lastLoginAttempt?.username || 'unknown');
-    await this.ScreenshotUtil.takeScreenshot(`ProductsPage_${uname}`);
-  }
+  await this.snap('ProductsPage');
 });
 
 Then('I should see an error message', async function () {
-  const text = await this.LoginPage.getErrorMessage(); 
+  const text = await this.LoginPage.getErrorMessage();
   console.log('Error message:', text);
   expect(text && text.length).toBeTruthy();
 
@@ -72,9 +70,5 @@ Then('I should see an error message', async function () {
   if (lower.includes('locked out')) kind = 'locked_out';
   else if (lower.includes('do not match')) kind = 'invalid_creds';
 
-  if (this.ScreenshotUtil) {
-    const uname = safeName(this.lastLoginAttempt?.username || 'unknown');
-    await this.ScreenshotUtil.takeScreenshot(`LoginError_${uname}_${kind}`);
-  }
+  await this.snap(`LoginError_${kind}`);
 });
-

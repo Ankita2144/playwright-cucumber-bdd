@@ -1,10 +1,23 @@
-// cucumber.js
+
 module.exports = {
-  default: [
-    '--require src/steps/**/*.js',
-    '--require src/support/**/*.js',
-    'src/features/**/*.feature',
-    '--format progress',
-    '--format html:reports/cucumber-report.html'
-  ].join(' ')
+  default: {
+    require: [
+      'src/steps/**/*.js',
+      'src/support/**/*.js'
+    ],
+    paths: [
+      'src/features/**/*.feature'
+    ],
+    format: [
+      'progress',
+      'summary',
+      'allure-cucumberjs/reporter'
+    ],
+    formatOptions: {
+      allure: {
+        resultsDir: 'allure-results'
+      }
+    },
+    publishQuiet: true
+  }
 };
